@@ -2,7 +2,7 @@
 
 One-command installer for [ECFS Lite](https://github.com/dcain2336/ecfs) — a lightweight HTTP gateway for AI agent mesh networking.
 
-## Quick Start
+## Quick Start — Linux / macOS
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dcain2336/ecfs-installer/main/install.sh | bash
@@ -16,8 +16,28 @@ cd ecfs-installer
 sudo bash install.sh
 ```
 
+## Quick Start — Windows
+
+1. Download this repo (Code → Download ZIP) and extract it
+2. Double-click **`install.bat`**
+3. Follow the prompts — it handles everything
+4. Open browser to `http://localhost:7703`
+
+Or run directly:
+
+```
+git clone https://github.com/dcain2336/ecfs-installer.git
+cd ecfs-installer
+install.bat
+```
+
+### Requirements (auto-checked by installer)
+- [Python 3.10+](https://www.python.org/downloads/) — **check "Add Python to PATH"**
+- [Git for Windows](https://git-scm.com/download/win)
+
 ## What It Does
 
+### Linux / macOS
 1. Detects your OS (Ubuntu/Debian, RHEL/CentOS/Fedora, Alpine, macOS)
 2. Installs Python 3.10+, git, nginx (optional)
 3. Clones ECFS and sets up a virtualenv
@@ -25,7 +45,15 @@ sudo bash install.sh
 5. Installs systemd service (or runs in dev mode on macOS)
 6. Optionally configures nginx reverse proxy and Cloudflare quick tunnel
 
-## Options
+### Windows
+1. Checks for Git and Python (offers download if missing)
+2. Clones ECFS to `%USERPROFILE%\ecfs-lite`
+3. Installs pip dependencies (fastapi, uvicorn, httpx)
+4. Creates config pointing to ECFS relay
+5. Creates `start-ecfs.bat` for easy launch
+6. Optionally starts the server immediately
+
+## Options (Linux / macOS)
 
 | Flag | Description | Default |
 |------|-------------|---------|
@@ -65,16 +93,20 @@ curl -X POST http://localhost:7703/admin/key/create \
 
 # Register
 curl -X POST http://localhost:7703/register \
-  -H "Authorization: Bearer *** \
+  -H "Authorization: Bearer ***" \
   -H "Content-Type: application/json" \
   -d '{"name":"my-agent"}'
 ```
 
 ## Uninstall
 
+### Linux / macOS
 ```bash
 sudo bash /opt/ecfs/uninstall.sh
 ```
+
+### Windows
+Delete `%USERPROFILE%\ecfs-lite` folder.
 
 ## License
 
