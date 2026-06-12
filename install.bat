@@ -58,22 +58,32 @@ echo.
 echo  [3/6] Downloading ECFS Lite...
 if exist "%INSTALL_DIR%" (
     echo  [!] %INSTALL_DIR% already exists. Updating...
-    cd /d "%INSTALL_DIR%"
+    cd /d "%INSTALL_DIR%\ecfs"
     git pull
 ) else (
     git clone --depth 1 -b %BRANCH% %REPO_URL% "%INSTALL_DIR%"
-    cd /d "%INSTALL_DIR%"
 )
 if %errorlevel% neq 0 (
     echo  [X] Failed to clone repo.
     pause
     exit /b 1
 )
-echo  [OK] ECFS downloaded to %INSTALL_DIR%
+
+:: ── Verify the file exists ───────────────────────
+if not exist "%INSTALL_DIR%\ecfs\ecfs-lite.py" (
+    echo  [X] Could not find ecfs-lite.py
+    echo  [!] Expected at: %INSTALL_DIR%\ecfs\ecfs-lite.py
+    echo  [!] Contents of %INSTALL_DIR%:
+    dir "%INSTALL_DIR%"
+    pause
+    exit /b 1
+)
+echo  [OK] ECFS downloaded.
 echo.
 
 :: ── Step 4: Install dependencies ─────────────────
 echo  [4/6] Installing Python dependencies...
+cd /d "%INSTALL_DIR%\ecfs"
 %PYTHON% -m pip install --upgrade pip >nul 2>&1
 %PYTHON% -m pip install fastapi uvicorn httpx
 if %errorlevel% neq 0 (
@@ -86,14 +96,14 @@ echo.
 
 :: ── Step 5: Create config ────────────────────────
 echo  [5/6] Creating config...
-if not exist "%INSTALL_DIR%\.env.ecfs-lite" (
+if not exist "%INSTALL_DIR%\ecfs\.env.ecfs-lite" (
     (
         echo # ECFS Lite Config
         echo ECFS_RELAY_URL=%RELAY_URL%
         echo ECFS_LITE_PORT=%LITE_PORT%
         echo ECFS_LITE_KEYS=ecfs-lite-keys.json
         echo ECFS_LITE_STATE=lite-state
-    ) > "%INSTALL_DIR%\.env.ecfs-lite"
+    ) > "%INSTALL_DIR%\ecfs\.env.ecfs-lite"
     echo  [OK] Config created.
 ) else (
     echo  [OK] Config already exists, skipping.
@@ -105,7 +115,7 @@ echo  [6/6] Creating start script...
 (
     echo @echo off
     echo title ECFS Lite — Port %LITE_PORT%
-    echo cd /d "%INSTALL_DIR%"
+    echo cd /d "%INSTALL_DIR%\ecfs"
     echo echo.
     echo echo  Starting ECFS Lite on port %LITE_PORT%...
     echo echo  Open http://localhost:%LITE_PORT% in your browser
@@ -129,9 +139,6 @@ echo    1. Go to: %INSTALL_DIR%
 echo    2. Double-click: start-ecfs.bat
 echo    3. Open browser: http://localhost:%LITE_PORT%
 echo.
-echo  Or run this command from anywhere:
-echo    %PYTHON% "%INSTALL_DIR%\ecfs-lite.py" --port %LITE_PORT%
-echo.
 
 :: Ask if they want to start now
 set /p "STARTNOW=Start ECFS Lite now? (Y/N): "
@@ -140,7 +147,7 @@ if /i "%STARTNOW%"=="Y" (
     echo  Starting ECFS Lite...
     echo  Press Ctrl+C to stop.
     echo.
-    cd /d "%INSTALL_DIR%"
+    cd /d "%INSTALL_DIR%\ecfs"
     %PYTHON% ecfs-lite.py --port %LITE_PORT%
     echo.
     echo  Server stopped.
